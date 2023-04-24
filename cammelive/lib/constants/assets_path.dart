@@ -1,6 +1,6 @@
 class AssetPath {
-  static const imgPath = 'assets';
+  static const imgPath = 'assets/images';
 
   //svg images
-  static const enterOTPSvg = '$imgPath/background-image.svg';
+  static const backImg = '$imgPath/background.png';
 }
