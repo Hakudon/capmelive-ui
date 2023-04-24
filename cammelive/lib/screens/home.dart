@@ -24,7 +24,8 @@ class HomeScreen extends StatelessWidget {
                   titleSubTitleText(context,
                       title: "Caption\nLive Video",
                       subTitle:
-                          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam"),
+                          "Lorem ipsum dolor sit amet, consectet adipiscing elit, sed do eiusmod tempo incididunt ut labore et dolore magnai aliqua. Ut enim ad",
+                      subTitleWidth: 0.7),
                   const SizedBox(
                     height: 10,
                   ),
@@ -38,10 +39,12 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(
                     height: 60,
                   ),
-                  titleSubTitleText(context,
-                      title: "Help Us\nTrain the AI",
-                      subTitle:
-                          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam"),
+                  titleSubTitleText(
+                    context,
+                    title: "Help Us\nTrain the AI",
+                    subTitle:
+                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
+                  ),
                   const SizedBox(
                     height: 10,
                   ),
