@@ -1,4 +1,7 @@
 import 'package:cammelive/constants/assets_path.dart';
+import 'package:cammelive/screens/live_caption.dart';
+import 'package:cammelive/screens/upload_video.dart';
+import 'package:cammelive/utils/navigator.dart';
 import 'package:cammelive/widgets/custom_button.dart';
 import 'package:cammelive/widgets/title_sub_text.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +30,10 @@ class HomeScreen extends StatelessWidget {
                   ),
                   customButton(
                     "Try Now",
-                    onPress: () {},
+                    onPress: () => navigateTo(
+                      context: context,
+                      screen: const LiveCaptionScreen(),
+                    ),
                   ),
                   const SizedBox(
                     height: 60,
@@ -41,7 +47,10 @@ class HomeScreen extends StatelessWidget {
                   ),
                   customButton(
                     "Next",
-                    onPress: () {},
+                    onPress: () => navigateTo(
+                      context: context,
+                      screen: const UploadVideoScreen(),
+                    ),
                   ),
                 ],
               ),
