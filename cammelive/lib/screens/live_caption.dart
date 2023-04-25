@@ -4,8 +4,253 @@ import 'package:cammelive/utils/navigator.dart';
 import 'package:cammelive/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 
-class LiveCaptionScreen extends StatelessWidget {
-  const LiveCaptionScreen({super.key});
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:http/http.dart' as http;
+
+class P2PVideo extends StatefulWidget {
+  const P2PVideo({Key? key}) : super(key: key);
+  static const String SERVER_URL = "http://localhost:8080";
+
+  @override
+  LiveCaptionState createState() => LiveCaptionState();
+}
+
+// class _LiveCaptionState {
+// }
+
+class LiveCaptionState extends State<P2PVideo> {
+  RTCPeerConnection? _peerConnection;
+  final _localRenderer = RTCVideoRenderer();
+  final _remoteRenderer = RTCVideoRenderer();
+
+  MediaStream? _localStream;
+
+  RTCDataChannelInit? _dataChannelDict;
+  RTCDataChannel? _dataChannel;
+  String transformType = "none";
+
+  // MediaStream? _localStream;
+  bool _inCalling = false;
+
+  bool _loading = false;
+
+  String _caption = "";
+
+  void _onTrack(RTCTrackEvent event) {
+    print("TRACK EVENT: ${event.streams.map((e) => e.id)}, ${event.track.id}");
+    if (event.track.kind == "video") {
+      print("HERE");
+      _remoteRenderer.srcObject = event.streams[0];
+    }
+  }
+
+  void _onAddTrack(MediaStream stream) {
+    print("ADD STREAM: ${stream.id}");
+    stream
+        .getTracks()
+        .forEach((track) => {_peerConnection?.addTrack(track, stream)});
+  }
+
+  void _onDataChannelState(RTCDataChannelState? state) {
+    switch (state) {
+      case RTCDataChannelState.RTCDataChannelClosed:
+        print("Camera Closed!!!!!!!");
+        break;
+      case RTCDataChannelState.RTCDataChannelOpen:
+        print("Camera Opened!!!!!!!");
+        break;
+      default:
+        print("Data Channel State: $state");
+    }
+  }
+
+  Future<bool> _waitForGatheringComplete(_) async {
+    print("WAITING FOR GATHERING COMPLETE");
+    if (_peerConnection!.iceGatheringState ==
+        RTCIceGatheringState.RTCIceGatheringStateComplete) {
+      print("WAITING FOR GATHERING COMPLETED");
+      return true;
+    } else {
+      await Future.delayed(Duration(seconds: 1));
+      return await _waitForGatheringComplete(_);
+    }
+  }
+
+  void _toggleCamera() async {
+    if (_localStream == null) throw Exception('Stream is not initialized');
+
+    final videoTrack = _localStream!
+        .getVideoTracks()
+        .firstWhere((track) => track.kind == 'video');
+    await Helper.switchCamera(videoTrack);
+  }
+
+  Future<void> _negotiateRemoteConnection() async {
+    return _peerConnection!
+        .createOffer()
+        .then((offer) {
+          return _peerConnection!.setLocalDescription(offer);
+        })
+        .then(_waitForGatheringComplete)
+        .then((_) async {
+          var des = await _peerConnection!.getLocalDescription();
+          var headers = {
+            'Content-Type': 'application/json',
+          };
+          var request = http.Request(
+            'POST',
+            Uri.parse(
+                '${P2PVideo.SERVER_URL}/offer'), // CHANGE URL HERE TO LOCAL SERVER
+          );
+          request.body = json.encode(
+            {
+              "sdp": des!.sdp,
+              "type": des.type,
+              // "video_transform": transformType,
+            },
+          );
+          request.headers.addAll(headers);
+
+          http.StreamedResponse response = await request.send();
+          print("OFFER SENT");
+
+          String data = "";
+          print(response);
+          if (response.statusCode == 200) {
+            data = await response.stream.bytesToString();
+            var dataMap = json.decode(data);
+            print(dataMap);
+            print(dataMap["type"]);
+            await _peerConnection!.setRemoteDescription(
+              RTCSessionDescription(
+                dataMap["sdp"],
+                dataMap["type"],
+              ),
+            );
+          } else {
+            print(response.reasonPhrase);
+          }
+        });
+  }
+
+  Future<void> _makeCall() async {
+    setState(() {
+      _loading = true;
+    });
+    var configuration = <String, dynamic>{
+      'sdpSemantics': 'unified-plan',
+    };
+
+    //* Create Peer Connection
+    if (_peerConnection != null) return;
+    _peerConnection = await createPeerConnection(
+      configuration,
+    );
+
+    _peerConnection!.onTrack = _onTrack;
+    // _peerConnection!.onAddTrack = _onAddTrack;
+
+    //* Create Data Channel
+    _dataChannelDict = RTCDataChannelInit();
+    _dataChannelDict!.ordered = true;
+    _dataChannel = await _peerConnection!.createDataChannel(
+      "chat",
+      _dataChannelDict!,
+    );
+    _dataChannel!.onDataChannelState = _onDataChannelState;
+    // _dataChannel!.onMessage = _onDataChannelMessage;
+    // RTCDataChannel _dataChannel;
+
+    _peerConnection!.onDataChannel = (channel) {
+      print("DATA CHANNEL CREATED");
+      _addDataChannel(channel);
+    };
+
+    final mediaConstraints = <String, dynamic>{
+      'audio': false,
+      'video': {
+        'mandatory': {
+          'minWidth':
+              '224', // Provide your own width, height and frame rate here
+          'minHeight': '224',
+          'maxWidth':
+              '224', // Provide your own width, height and frame rate here
+          'maxHeight': '224',
+          'minFrameRate': '30',
+          'maxFrameRate': '30',
+        },
+        // 'facingMode': 'user',
+        'facingMode': 'environment',
+        'optional': [],
+      }
+    };
+
+    try {
+      var stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+      // _mediaDevicesList = await navigator.mediaDevices.enumerateDevices();
+      _localStream = stream;
+      // display the local camera feed on the preview
+      _localRenderer.srcObject = _localStream;
+
+      stream.getTracks().forEach((element) {
+        _peerConnection!.addTrack(element, stream);
+      });
+
+      print("NEGOTIATE");
+      await _negotiateRemoteConnection();
+    } catch (e) {
+      print(e.toString());
+    }
+    if (!mounted) return;
+
+    setState(() {
+      _inCalling = true;
+      _loading = false;
+    });
+  }
+
+  void _addDataChannel(RTCDataChannel channel) {
+    _dataChannel = channel;
+    _dataChannel!.onMessage = (data) {
+      // yo message chai text box ko ma store garne
+      print("MSG: , ${data.text}");
+      setState(() {
+        _caption = data.text;
+      });
+    };
+    _dataChannel!.onDataChannelState = (state) {
+      print("Data channel state: $state");
+    };
+  }
+
+  Future<void> _stopCall() async {
+    try {
+      // await _localStream?.dispose();
+      await _dataChannel?.close();
+      await _peerConnection?.close();
+      _peerConnection = null;
+      _localRenderer.srcObject = null;
+    } catch (e) {
+      print(e.toString());
+    }
+    setState(() {
+      _inCalling = false;
+    });
+  }
+
+  Future<void> initLocalRenderers() async {
+    await _localRenderer.initialize();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    initLocalRenderers();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +271,30 @@ class LiveCaptionScreen extends StatelessWidget {
         padding:
             const EdgeInsets.only(left: 25, right: 25, top: 10, bottom: 40),
         child: Column(children: [
-          Container(
-            height: 400,
-            color: AppColor.boxColor,
+          AspectRatio(
+            aspectRatio: 1,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Container(
+                    color: Colors.black,
+                    child: _loading
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 4,
+                            ),
+                          )
+                        : Container(),
+                  ),
+                ),
+                Positioned.fill(
+                  child: RTCVideoView(
+                    _localRenderer,
+                    // mirror: true,
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(
             height: 20,
@@ -48,9 +314,12 @@ class LiveCaptionScreen extends StatelessWidget {
           ),
           Expanded(child: Container()),
           customButton(
-            isStop ? "Stop" : "Start",
+            _inCalling ? "STOP" : "START",
             width: MediaQuery.of(context).size.width,
-            onPress: () {},
+            onPress: _loading? () {}
+            : _inCalling
+                ? _stopCall
+                : _makeCall,
           )
         ]),
       ),
