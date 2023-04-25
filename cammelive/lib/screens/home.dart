@@ -33,7 +33,7 @@ class HomeScreen extends StatelessWidget {
                     "Try Now",
                     onPress: () => navigateTo(
                       context: context,
-                      screen: const LiveCaptionScreen(),
+                      screen: const P2PVideo(),
                     ),
                   ),
                   const SizedBox(
