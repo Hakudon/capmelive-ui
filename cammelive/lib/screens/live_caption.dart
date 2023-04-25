@@ -306,8 +306,7 @@ class LiveCaptionState extends State<P2PVideo> {
               borderRadius: BorderRadius.circular(20),
               color: AppColor.boxColor,
             ),
-            child: Text(
-              "fadeBlueColor asf lasdf lkj falhsd fds lkfj sdflkj slkdf lj",
+            child: Text(_caption,
               style: normalStyle(
                   weight: FontWeight.w500, color: AppColor.secondaryColor),
             ),
