@@ -67,6 +67,31 @@ class UploadVideoScreen extends StatelessWidget {
                     weight: FontWeight.w400, color: AppColor.secondaryColor),
               ),
               Expanded(child: Container()),
+              Column(
+                children: [
+                  Text(
+                    provider.progressPercentValue.toString(),
+                    style: normalStyle(
+                      weight: FontWeight.bold,
+                      color: provider.progressPercentValue > 0
+                          ? AppColor.secondaryColor
+                          : Colors.transparent,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  LinearProgressIndicator(
+                    value: provider.progressValue,
+                    backgroundColor: Colors.transparent,
+                    color: AppColor.primaryColor,
+                    minHeight: 6,
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 20,
+              ),
               RichText(
                 text: TextSpan(
                   text: 'By signing up, you’re agree to our ',
