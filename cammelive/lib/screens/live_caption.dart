@@ -4,6 +4,10 @@ import 'package:cammelive/utils/navigator.dart';
 import 'package:cammelive/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 
+import 'package:flutter_tts/flutter_tts.dart';
+// import 'package:flutter_tts/flutter_tts.dart';
+import 'package:text_to_speech/text_to_speech.dart';
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -12,6 +16,7 @@ import 'package:http/http.dart' as http;
 
 class P2PVideo extends StatefulWidget {
   const P2PVideo({Key? key}) : super(key: key);
+  // ignore: constant_identifier_names
   static const String SERVER_URL = "http://localhost:8080";
 
   @override
@@ -20,6 +25,8 @@ class P2PVideo extends StatefulWidget {
 
 // class _LiveCaptionState {
 // }
+
+enum TtsState { playing, stopped, paused, continued }
 
 class LiveCaptionState extends State<P2PVideo> {
   RTCPeerConnection? _peerConnection;
@@ -38,6 +45,32 @@ class LiveCaptionState extends State<P2PVideo> {
   bool _loading = false;
 
   String _caption = "";
+
+  TtsState _ttsstate = TtsState.stopped;
+
+  FlutterTts flutterTts = FlutterTts();
+
+  void setFlutterTtsConfig() async {
+    await flutterTts.setLanguage('en-US');
+    await flutterTts.setPitch(2);
+    await flutterTts.setVolume(1.0);
+    await flutterTts.setSpeechRate(0.5);
+  }
+
+  Future<void> textToSpeech(String text) async {
+    print(_ttsstate);
+    if (_ttsstate == TtsState.stopped) {
+      setState(() {
+        _ttsstate = TtsState.playing;
+      });
+
+      await flutterTts.speak(text);
+      setState(() {
+        _ttsstate = TtsState.stopped;
+      });
+    }
+    print(_ttsstate);
+  }
 
   void _onTrack(RTCTrackEvent event) {
     print("TRACK EVENT: ${event.streams.map((e) => e.id)}, ${event.track.id}");
@@ -217,6 +250,7 @@ class LiveCaptionState extends State<P2PVideo> {
     _dataChannel!.onMessage = (data) {
       // yo message chai text box ko ma store garne
       print("MSG: , ${data.text}");
+      flutterTts.speak(data.text);
       setState(() {
         _caption = data.text;
       });
@@ -230,6 +264,7 @@ class LiveCaptionState extends State<P2PVideo> {
     try {
       // await _localStream?.dispose();
       await _dataChannel?.close();
+      print("close peer connection");
       await _peerConnection?.close();
       _peerConnection = null;
       _localRenderer.srcObject = null;
@@ -250,6 +285,7 @@ class LiveCaptionState extends State<P2PVideo> {
     super.initState();
 
     initLocalRenderers();
+    setFlutterTtsConfig();
   }
 
   @override
@@ -306,7 +342,8 @@ class LiveCaptionState extends State<P2PVideo> {
               borderRadius: BorderRadius.circular(20),
               color: AppColor.boxColor,
             ),
-            child: Text(_caption,
+            child: Text(
+              _caption,
               style: normalStyle(
                   weight: FontWeight.w500, color: AppColor.secondaryColor),
             ),
@@ -315,10 +352,11 @@ class LiveCaptionState extends State<P2PVideo> {
           customButton(
             _inCalling ? "STOP" : "START",
             width: MediaQuery.of(context).size.width,
-            onPress: _loading? () {}
-            : _inCalling
-                ? _stopCall
-                : _makeCall,
+            onPress: _loading
+                ? () {}
+                : _inCalling
+                    ? _stopCall
+                    : _makeCall,
           )
         ]),
       ),
