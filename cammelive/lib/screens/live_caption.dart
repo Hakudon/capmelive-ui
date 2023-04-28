@@ -5,8 +5,7 @@ import 'package:cammelive/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_tts/flutter_tts.dart';
-// import 'package:flutter_tts/flutter_tts.dart';
-import 'package:text_to_speech/text_to_speech.dart';
+// import 'package:flutter_tts/flutter_tts.dart'; 
 
 import 'dart:async';
 import 'dart:convert';
@@ -17,7 +16,8 @@ import 'package:http/http.dart' as http;
 class P2PVideo extends StatefulWidget {
   const P2PVideo({Key? key}) : super(key: key);
   // ignore: constant_identifier_names
-  static const String SERVER_URL = "http://localhost:8080";
+  //static const String SERVER_URL = "http://192.168.43.244:8080";
+  static const String SERVER_URL = "http://192.168.1.65:8080";
 
   @override
   LiveCaptionState createState() => LiveCaptionState();
@@ -32,6 +32,7 @@ class LiveCaptionState extends State<P2PVideo> {
   RTCPeerConnection? _peerConnection;
   final _localRenderer = RTCVideoRenderer();
   final _remoteRenderer = RTCVideoRenderer();
+  
 
   MediaStream? _localStream;
 
@@ -52,9 +53,10 @@ class LiveCaptionState extends State<P2PVideo> {
 
   void setFlutterTtsConfig() async {
     await flutterTts.setLanguage('en-US');
-    await flutterTts.setPitch(2);
+    await flutterTts.setPitch(1);
     await flutterTts.setVolume(1.0);
-    await flutterTts.setSpeechRate(0.5);
+    await flutterTts.setSpeechRate(0.2);
+
   }
 
   Future<void> textToSpeech(String text) async {
@@ -77,6 +79,9 @@ class LiveCaptionState extends State<P2PVideo> {
     if (event.track.kind == "video") {
       print("HERE");
       _remoteRenderer.srcObject = event.streams[0];
+      _remoteRenderer.srcObject?.getAudioTracks()[0].enabled = true;
+      _remoteRenderer.srcObject?.getAudioTracks()[0].enableSpeakerphone(true);
+      //setAudioDeviceInternal(device=SPEAKER_PHONE)
     }
   }
 
@@ -329,6 +334,25 @@ class LiveCaptionState extends State<P2PVideo> {
                     // mirror: true,
                   ),
                 ),
+                _inCalling
+                    ? Align(
+                        alignment: Alignment.bottomRight,
+                        child: InkWell(
+                          onTap: _toggleCamera,
+                          child: Container(
+                            height: 50,
+                            width: 50,
+                            color: Colors.black26,
+                            child: Center(
+                              child: Icon(
+                                Icons.cameraswitch,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    : Container(),
               ],
             ),
           ),
