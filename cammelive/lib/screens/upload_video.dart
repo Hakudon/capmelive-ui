@@ -61,11 +61,11 @@ class UploadVideoScreen extends StatelessWidget {
               const SizedBox(
                 height: 10,
               ),
-              Text(
-                provider.videoFile != null ? provider.videoFile!.path : "",
-                style: subNormalStyle(
-                    weight: FontWeight.w400, color: AppColor.secondaryColor),
-              ),
+              // Text(
+              //   provider.videoFile != null ? provider.videoFile!.paths : "",
+              //   style: subNormalStyle(
+              //       weight: FontWeight.w400, color: AppColor.secondaryColor),
+              // ),
               Expanded(child: Container()),
               Column(
                 children: [

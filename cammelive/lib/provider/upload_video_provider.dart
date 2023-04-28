@@ -7,15 +7,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as fileUtil;
+import 'package:file_picker/file_picker.dart';
 
 class UploadVideoProvider extends ChangeNotifier {
-  XFile? videoFile;
+  FilePickerResult? videoFile;
   double progressValue = 0.3;
   int progressPercentValue = 23;
   void pickVideo(context) async {
     try {
-      videoFile = await ImagePicker().pickVideo(source: ImageSource.gallery);
-      print(videoFile!.path);
+      videoFile = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        allowedExtensions: ['mp4', 'mov'],
+      );
+
+      
+      //videoFile = await ImagePicker().pickVideo(source: ImageSource.gallery, );
+      print(videoFile!.paths);
     } on PlatformException catch (e) {
       errorMessage(context, "Failed to pick the video");
 
