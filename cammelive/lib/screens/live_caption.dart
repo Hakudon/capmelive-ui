@@ -17,8 +17,9 @@ import 'package:http/http.dart' as http;
 class P2PVideo extends StatefulWidget {
   const P2PVideo({Key? key}) : super(key: key);
   // ignore: constant_identifier_names
-  static const String SERVER_URL = "http://localhost:8080";
+  //static const String SERVER_URL = "http://localhost:8080";
 
+  static const String SERVER_URL = "http://192.168.1.65:8080";
   @override
   LiveCaptionState createState() => LiveCaptionState();
 }
