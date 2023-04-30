@@ -5,7 +5,7 @@ import 'package:cammelive/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_tts/flutter_tts.dart';
-// import 'package:flutter_tts/flutter_tts.dart'; 
+// import 'package:flutter_tts/flutter_tts.dart';
 
 import 'dart:async';
 import 'dart:convert';
@@ -32,7 +32,6 @@ class LiveCaptionState extends State<P2PVideo> {
   RTCPeerConnection? _peerConnection;
   final _localRenderer = RTCVideoRenderer();
   final _remoteRenderer = RTCVideoRenderer();
-  
 
   MediaStream? _localStream;
 
@@ -56,7 +55,6 @@ class LiveCaptionState extends State<P2PVideo> {
     await flutterTts.setPitch(1);
     await flutterTts.setVolume(1.0);
     await flutterTts.setSpeechRate(0.2);
-
   }
 
   Future<void> textToSpeech(String text) async {
