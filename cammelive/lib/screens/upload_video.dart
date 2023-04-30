@@ -64,7 +64,7 @@ class UploadVideoScreen extends StatelessWidget {
                   customButton(
                     "Select CSV ",
                     onPress: () {
-                      provider.pickVideo(context);
+                      // provider.pickVideo(context);
                     },
                     width: 165,
                   ),
@@ -89,24 +89,24 @@ class UploadVideoScreen extends StatelessWidget {
               Expanded(child: Container()),
               Column(
                 children: [
-                  Text(
-                    provider.progressPercentValue.toString(),
-                    style: normalStyle(
-                      weight: FontWeight.bold,
-                      color: provider.progressPercentValue > 0
-                          ? AppColor.secondaryColor
-                          : Colors.transparent,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  LinearProgressIndicator(
-                    value: provider.progressValue,
-                    backgroundColor: Colors.transparent,
-                    color: AppColor.primaryColor,
-                    minHeight: 6,
-                  ),
+                  // Text(
+                  //   provider.progressPercentValue.toString(),
+                  //   style: normalStyle(
+                  //     weight: FontWeight.bold,
+                  //     color: provider.progressPercentValue > 0
+                  //         ? AppColor.secondaryColor
+                  //         : Colors.transparent,
+                  //   ),
+                  // ),
+                  // const SizedBox(
+                  //   height: 10,
+                  // ),
+                  // LinearProgressIndicator(
+                  //   value: provider.progressValue,
+                  //   backgroundColor: Colors.transparent,
+                  //   color: AppColor.primaryColor,
+                  //   minHeight: 6,
+                  // ),
                 ],
               ),
               const SizedBox(

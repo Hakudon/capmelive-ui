@@ -4,6 +4,7 @@ import 'package:cammelive/provider/upload_csv_provider.dart';
 import 'package:cammelive/utils/navigator.dart';
 import 'package:cammelive/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_audio_manager/flutter_audio_manager.dart';
 
 import 'package:provider/provider.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -19,7 +20,8 @@ class P2PVideo extends StatefulWidget {
   const P2PVideo({Key? key}) : super(key: key);
   // ignore: constant_identifier_names
   //static const String SERVER_URL = "http://192.168.43.244:8080";
-  static const String SERVER_URL = "http://192.168.56.1:8080";
+  // ignore: constant_identifier_names
+  static const String SERVER_URL = "http://localhost:8080";
 
   @override
   LiveCaptionState createState() => LiveCaptionState();
@@ -57,10 +59,12 @@ class LiveCaptionState extends State<P2PVideo> {
     await flutterTts.setPitch(1);
     await flutterTts.setVolume(1.0);
     await flutterTts.setSpeechRate(0.2);
+    // await flutterTts.
   }
 
   Future<void> textToSpeech(String text) async {
     print(_ttsstate);
+    await FlutterAudioManager.changeToSpeaker();
     if (_ttsstate == TtsState.stopped) {
       setState(() {
         _ttsstate = TtsState.playing;
@@ -307,6 +311,14 @@ class LiveCaptionState extends State<P2PVideo> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        title: Text(
+          "Live Captioning",
+          style: subTitleStyle(
+            weight: FontWeight.bold,
+            color: AppColor.secondaryColor,
+          ).copyWith(fontSize: 20),
+        ),
+        centerTitle: true,
         elevation: 0,
         leading: IconButton(
           onPressed: () => navigateBack(context: context),
@@ -321,7 +333,7 @@ class LiveCaptionState extends State<P2PVideo> {
             const EdgeInsets.only(left: 25, right: 25, top: 10, bottom: 40),
         child: Column(children: [
           AspectRatio(
-            aspectRatio: 0.8,
+            aspectRatio: 1,
             child: Stack(
               children: [
                 Positioned.fill(
@@ -367,9 +379,7 @@ class LiveCaptionState extends State<P2PVideo> {
                   child: Consumer<UploadCSVProvider>(
                     builder: (context, provider, child) {
                       return Text(
-                        (provider.message.isNotEmpty)
-                            ? provider.message
-                            : "Hello",
+                        (provider.message.isNotEmpty) ? provider.message : "",
                         style: normalStyle(
                             weight: FontWeight.w500,
                             color: AppColor.primaryColor),

@@ -1,10 +1,12 @@
 import 'package:cammelive/constants/assets_path.dart';
+import 'package:cammelive/provider/upload_video_provider.dart';
 import 'package:cammelive/screens/live_caption.dart';
 import 'package:cammelive/screens/upload_video.dart';
 import 'package:cammelive/utils/navigator.dart';
 import 'package:cammelive/widgets/custom_button.dart';
 import 'package:cammelive/widgets/title_sub_text.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -13,49 +15,55 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.only(top: 100, left: 25, right: 25),
+        padding: const EdgeInsets.only(top: 80, left: 25, right: 25),
         child: SizedBox(
           width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
           child: Stack(
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  titleSubTitleText(context,
-                      title: "Caption\nLive Video",
+              SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    titleSubTitleText(context,
+                        title: "Caption\nLive Video",
+                        subTitle:
+                            "Lorem ipsum dolor sit amet, consectet adipiscing elit, sed do eiusmod tempo incididunt ut labore et dolore magnai aliqua. Ut enim ad",
+                        subTitleWidth: 0.7),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    customButton(
+                      "Try Now",
+                      onPress: () => navigateTo(
+                        context: context,
+                        screen: const P2PVideo(),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 60,
+                    ),
+                    titleSubTitleText(
+                      context,
+                      title: "Help Us\nTrain the AI",
                       subTitle:
-                          "Lorem ipsum dolor sit amet, consectet adipiscing elit, sed do eiusmod tempo incididunt ut labore et dolore magnai aliqua. Ut enim ad",
-                      subTitleWidth: 0.7),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  customButton(
-                    "Try Now",
-                    onPress: () => navigateTo(
-                      context: context,
-                      screen: const P2PVideo(),
+                          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
                     ),
-                  ),
-                  const SizedBox(
-                    height: 60,
-                  ),
-                  titleSubTitleText(
-                    context,
-                    title: "Help Us\nTrain the AI",
-                    subTitle:
-                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  customButton(
-                    "Next",
-                    onPress: () => navigateTo(
-                      context: context,
-                      screen: const UploadVideoScreen(),
+                    const SizedBox(
+                      height: 10,
                     ),
-                  ),
-                ],
+                    customButton("Next",
+                        onPress: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      const UploadVideoScreen()),
+                            ).then((value) => Provider.of<UploadVideoProvider>(
+                                    context,
+                                    listen: false)
+                                .fileNameList = [])),
+                  ],
+                ),
               ),
               Positioned(
                 bottom: 5,
