@@ -1,11 +1,13 @@
 import 'package:cammelive/constants/colors.dart';
 import 'package:cammelive/constants/text_styles.dart';
+import 'package:cammelive/provider/upload_csv_provider.dart';
 import 'package:cammelive/utils/navigator.dart';
 import 'package:cammelive/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 
+import 'package:provider/provider.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-// import 'package:flutter_tts/flutter_tts.dart'; 
+// import 'package:flutter_tts/flutter_tts.dart';
 
 import 'dart:async';
 import 'dart:convert';
@@ -17,7 +19,7 @@ class P2PVideo extends StatefulWidget {
   const P2PVideo({Key? key}) : super(key: key);
   // ignore: constant_identifier_names
   //static const String SERVER_URL = "http://192.168.43.244:8080";
-  static const String SERVER_URL = "http://192.168.1.65:8080";
+  static const String SERVER_URL = "http://192.168.56.1:8080";
 
   @override
   LiveCaptionState createState() => LiveCaptionState();
@@ -32,7 +34,6 @@ class LiveCaptionState extends State<P2PVideo> {
   RTCPeerConnection? _peerConnection;
   final _localRenderer = RTCVideoRenderer();
   final _remoteRenderer = RTCVideoRenderer();
-  
 
   MediaStream? _localStream;
 
@@ -56,7 +57,6 @@ class LiveCaptionState extends State<P2PVideo> {
     await flutterTts.setPitch(1);
     await flutterTts.setVolume(1.0);
     await flutterTts.setSpeechRate(0.2);
-
   }
 
   Future<void> textToSpeech(String text) async {
@@ -96,12 +96,20 @@ class LiveCaptionState extends State<P2PVideo> {
     switch (state) {
       case RTCDataChannelState.RTCDataChannelClosed:
         print("Camera Closed!!!!!!!");
+        // Provider.of<UploadCSVProvider>(context, listen: false)
+        //     .updateMessage("Camera Closed!");
+
         break;
       case RTCDataChannelState.RTCDataChannelOpen:
         print("Camera Opened!!!!!!!");
+        // Provider.of<UploadCSVProvider>(context, listen: false)
+        //     .updateMessage("Camera Opened!");
+
         break;
       default:
         print("Data Channel State: $state");
+      // Provider.of<UploadCSVProvider>(context, listen: false)
+      //     .updateMessage("Data Channel State: $state");
     }
   }
 
@@ -313,7 +321,7 @@ class LiveCaptionState extends State<P2PVideo> {
             const EdgeInsets.only(left: 25, right: 25, top: 10, bottom: 40),
         child: Column(children: [
           AspectRatio(
-            aspectRatio: 1,
+            aspectRatio: 0.8,
             child: Stack(
               children: [
                 Positioned.fill(
@@ -346,13 +354,29 @@ class LiveCaptionState extends State<P2PVideo> {
                             child: Center(
                               child: Icon(
                                 Icons.cameraswitch,
-                                color: Colors.grey,
+                                color: Color.fromARGB(255, 138, 118, 118),
                               ),
                             ),
                           ),
                         ),
                       )
                     : Container(),
+                Positioned(
+                  bottom: 2,
+                  left: 5,
+                  child: Consumer<UploadCSVProvider>(
+                    builder: (context, provider, child) {
+                      return Text(
+                        (provider.message.isNotEmpty)
+                            ? provider.message
+                            : "Hello",
+                        style: normalStyle(
+                            weight: FontWeight.w500,
+                            color: AppColor.primaryColor),
+                      );
+                    },
+                  ),
+                )
               ],
             ),
           ),

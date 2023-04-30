@@ -1,4 +1,5 @@
 import 'package:cammelive/provider/upload_video_provider.dart';
+import 'package:cammelive/provider/upload_csv_provider.dart';
 import 'package:cammelive/screens/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +9,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => UploadVideoProvider()),
+        ChangeNotifierProvider(create: (context) => UploadCSVProvider()),
       ],
       child: const MyApp(),
     ),

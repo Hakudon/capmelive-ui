@@ -51,21 +51,41 @@ class UploadVideoScreen extends StatelessWidget {
               const SizedBox(
                 height: 40,
               ),
-              customButton(
-                "Select Video",
-                onPress: () {
-                  provider.pickVideo(context);
-                },
-                width: 165,
+              Row(
+                children: [
+                  customButton(
+                    "Select Video",
+                    onPress: () {
+                      provider.pickMultiVideo(context);
+                    },
+                    width: 165,
+                  ),
+                  const Expanded(child: SizedBox()),
+                  customButton(
+                    "Select CSV ",
+                    onPress: () {
+                      provider.pickVideo(context);
+                    },
+                    width: 165,
+                  ),
+                ],
               ),
               const SizedBox(
                 height: 10,
               ),
-              Text(
-                provider.videoFile != null ? provider.videoFile!.path : "",
-                style: subNormalStyle(
-                    weight: FontWeight.w400, color: AppColor.secondaryColor),
-              ),
+              provider.fileNameList.isNotEmpty
+                  ? ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: provider.fileNameList.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Text(
+                          provider.fileNameList[index],
+                          style: subNormalStyle(
+                              weight: FontWeight.w400,
+                              color: AppColor.secondaryColor),
+                        );
+                      })
+                  : const SizedBox(),
               Expanded(child: Container()),
               Column(
                 children: [
