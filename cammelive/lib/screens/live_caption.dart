@@ -15,13 +15,14 @@ import 'dart:convert';
 
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:http/http.dart' as http;
+import '../globals.dart' as globals;
 
 class P2PVideo extends StatefulWidget {
   const P2PVideo({Key? key}) : super(key: key);
   // ignore: constant_identifier_names
-  //static const String SERVER_URL = "http://192.168.43.244:8080";
+  //final String SERVER_URL = "http://192.168.137.184:8080";
   // ignore: constant_identifier_names
-  static const String SERVER_URL = "http://localhost:8080";
+  //static const String SERVER_URL = "http://localhost:8080";
 
   @override
   LiveCaptionState createState() => LiveCaptionState();
@@ -50,6 +51,7 @@ class LiveCaptionState extends State<P2PVideo> {
 
   String _caption = "";
 
+  var SERVER_URL = "";
   TtsState _ttsstate = TtsState.stopped;
 
   FlutterTts flutterTts = FlutterTts();
@@ -152,8 +154,7 @@ class LiveCaptionState extends State<P2PVideo> {
           };
           var request = http.Request(
             'POST',
-            Uri.parse(
-                '${P2PVideo.SERVER_URL}/offer'), // CHANGE URL HERE TO LOCAL SERVER
+            Uri.parse('${globals.SERVER_URL}/offer'), // CHANGE URL HERE TO LOCAL SERVER
           );
           request.body = json.encode(
             {
@@ -327,6 +328,59 @@ class LiveCaptionState extends State<P2PVideo> {
             color: Colors.black,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.abc_rounded),
+            onPressed: () {
+              TextEditingController _controller = TextEditingController();
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    scrollable: true,
+                    title: const Text(""),
+                    content: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Form(
+                        child: Column(
+                          children: [
+                            TextFormField(
+                              controller: _controller,
+                              decoration: const InputDecoration(
+                                labelText: "IP",
+                                icon: Icon(Icons.message),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    actions: [
+                      ElevatedButton(
+                        child: const Text("submit"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColor.primaryColor,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(40.0),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          String text = _controller.text;
+                          SERVER_URL = "http://$text:8080";
+                          globals.SERVER_URL = SERVER_URL;
+                          print(SERVER_URL);
+                          // your code
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          )
+        ],
       ),
       body: Padding(
         padding:

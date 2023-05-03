@@ -44,7 +44,7 @@ class UploadVideoScreen extends StatelessWidget {
                 context,
                 title: "How this works?",
                 subTitle:
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
+                    "Upload some videos you have of about 6 seconds along with a csv file with filename and their corresponding captions",
                 subTitleWidth: 1,
                 isMainTitle: false,
               ),
